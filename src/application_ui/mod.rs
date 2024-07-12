@@ -95,6 +95,35 @@ fn check_if_win() -> u8{
 
 fn next_best_move() -> usize{
     unsafe {
+        let mut first_mouve = true;
+        for i in 0..9{
+            
+            if MY_UI_INSTANCE.values_grid[i] == 2u8{
+                first_mouve = false;
+                break;
+            }
+        }
+        if first_mouve == true && MY_UI_INSTANCE.values_grid[4] == 0u8{
+            return  4;
+        }
+        if first_mouve == true && MY_UI_INSTANCE.values_grid[0] == 0u8{
+            return  0;
+        }
+        if first_mouve == true && MY_UI_INSTANCE.values_grid[2] == 0u8{
+            return  2;
+        }
+        if first_mouve == true && MY_UI_INSTANCE.values_grid[6] == 0u8{
+            return  6;
+        }
+        if first_mouve == true && MY_UI_INSTANCE.values_grid[8] == 0u8{
+            return  8;
+        }
+    }
+        
+    return  next_clever_move();
+}
+fn next_clever_move() -> usize{
+    unsafe {
         let mut dispo_moves:Vec<usize> = Vec::new();
         for  (i,value) in MY_UI_INSTANCE.values_grid.iter().enumerate(){
             if *value == 0u8{
@@ -158,15 +187,15 @@ fn next_best_move() -> usize{
             }
         }
         for i in 0..3{
-            if ai_collmns_counter[i] == 2{
+            if ai_collmns_counter[i] == 2 && ai_collmns_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_collmns_index[i]] == 0u8{
                 play_index = ai_collmns_index[i];
                 break;
             }
-            if ai_rows_counter[i] == 2{
+            if ai_rows_counter[i] == 2 && ai_rows_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_rows_index[i]] == 0u8{
                 play_index = ai_rows_index[i];
                 break;
             }
-            if i < 2 && ai_diag_counter[i] == 2{
+            if i < 2 && ai_diag_counter[i] == 2 && ai_diag_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_diag_index[i]] == 0u8{
                 play_index = ai_diag_index[i];
                 break;
             }
@@ -234,15 +263,15 @@ fn next_best_move() -> usize{
 
         }
         for i in 0..3{
-            if player_collmns_counter[i] == 2{
+            if player_collmns_counter[i] == 2 && player_collmns_index[i] < 9 && MY_UI_INSTANCE.values_grid[player_collmns_index[i]] == 0u8{
                 play_index = player_collmns_index[i];
                 break;
             }
-            if player_rows_counter[i] == 2{
+            if player_rows_counter[i] == 2 && player_rows_index[i] < 9 && MY_UI_INSTANCE.values_grid[player_rows_index[i]] == 0u8{
                 play_index = player_rows_index[i];
                 break;
             }
-            if i < 2 && player_diag_counter[i] == 2{
+            if i < 2 && player_diag_counter[i] == 2 && player_diag_index[i] < 9 && MY_UI_INSTANCE.values_grid[player_diag_index[i]] == 0u8{
                 play_index = player_diag_index[i];
                 break;
             }
@@ -256,11 +285,11 @@ fn next_best_move() -> usize{
                 play_index = ai_collmns_index[i];
                 break;
             }
-            if ai_rows_counter[i] == 1 && ai_rows_counter[i] == 0{
+            if ai_rows_counter[i] == 1 && player_rows_counter[i] == 0{
                 play_index = ai_rows_index[i];
                 break;
             }
-            if i < 2 && ai_diag_counter[i] == 1 && ai_diag_counter[i] == 0{
+            if i < 2 && ai_diag_counter[i] == 1 && player_diag_counter[i] == 0{
                 play_index = ai_diag_index[i];
                 break;
             }
@@ -281,7 +310,7 @@ fn next_best_move() -> usize{
     }
     return  10;
 }
-fn next_clever_move() -> usize{
+fn next_clever_move_with_default() -> usize{
     unsafe {
         let mut dispo_moves:Vec<usize> = Vec::new();
         for  (i,value) in MY_UI_INSTANCE.values_grid.iter().enumerate(){
@@ -384,6 +413,92 @@ fn next_clever_move() -> usize{
 }
 fn next_random_move() -> usize{
     unsafe {
+        let mut play_index:usize = 10;
+        // attack block      
+        let mut ai_collmns_counter: [u8; 3] = [0,0,0];
+        let mut ai_collmns_index: [usize; 3] = [10,10,10];
+        let mut ai_rows_counter: [u8; 3] = [0,0,0];
+        let mut ai_rows_index: [usize; 3] = [10,10,10];
+        let mut ai_diag_counter: [u8; 2] = [0,0];
+        let mut ai_diag_index: [usize; 2] = [10,10];
+        for i in 0..3{
+            //rows ai counter
+            if MY_UI_INSTANCE.values_grid[i] == 2u8{
+                ai_collmns_counter[0] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i] == 0u8 {
+                ai_collmns_index[0] = i;
+            }
+            if  MY_UI_INSTANCE.values_grid[i+3] == 2u8{
+                ai_collmns_counter[1] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i+3] == 0u8{
+                ai_collmns_index[1] = i+3;
+            }
+            if MY_UI_INSTANCE.values_grid[i+6] == 2u8{
+                ai_collmns_counter[2] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i+6] == 0u8{
+                ai_collmns_index[2] = i+6;
+            }
+
+            //collumns ai counter
+            if MY_UI_INSTANCE.values_grid[i*3] == 2u8{
+                ai_rows_counter[0] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i*3] == 0u8{
+                ai_rows_index[0] = i*3;
+            }
+            if MY_UI_INSTANCE.values_grid[i*3+ 1] == 2u8{
+                ai_rows_counter[1] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i*3 + 1] == 0u8{
+                ai_rows_index[1] = i*3+ 1;
+            }
+            if MY_UI_INSTANCE.values_grid[i*3 + 2] == 2u8{
+                ai_rows_counter[2] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i*3 + 2] == 0u8{
+                ai_rows_index[2] = i*3+ 2;
+            }
+            
+            //diagonals ai counter
+            if MY_UI_INSTANCE.values_grid[i*3 + i] == 2u8{
+                ai_diag_counter[0] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i*3 + i] == 0u8{
+                ai_diag_index[0] = i*3 + i;
+            }
+            if MY_UI_INSTANCE.values_grid[i*3 + (2-i)] == 2u8 {
+                ai_diag_counter[1] += 1;
+            }else if MY_UI_INSTANCE.values_grid[i*3 + (2-i)] == 0u8{
+                ai_diag_index[0] = i*3 + (2-i);
+            }
+        }
+        for i in 0..3{
+            if ai_collmns_counter[i] == 2 && ai_collmns_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_collmns_index[i]] == 0u8{
+                play_index = ai_collmns_index[i];
+                break;
+            }
+            if ai_rows_counter[i] == 2 && ai_rows_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_rows_index[i]] == 0u8{
+                play_index = ai_rows_index[i];
+                break;
+            }
+            if i < 2 && ai_diag_counter[i] == 2 && ai_diag_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_diag_index[i]] == 0u8{
+                play_index = ai_diag_index[i];
+                break;
+            }
+        }
+        if play_index < 9 {
+            return play_index;
+        }
+        
+        for i in 0..3{
+            if ai_collmns_counter[i] == 1 && ai_collmns_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_collmns_index[i]] == 0 && (MY_UI_INSTANCE.values_grid[i*3 ] + MY_UI_INSTANCE.values_grid[i*3 + 1] + MY_UI_INSTANCE.values_grid[i*3 + 2]) == 2{
+                play_index = ai_collmns_index[i];
+                break;
+            }
+            if ai_rows_counter[i] == 1 && ai_rows_index[i] < 9 && MY_UI_INSTANCE.values_grid[ai_rows_index[i]] == 0 && (MY_UI_INSTANCE.values_grid[i] + MY_UI_INSTANCE.values_grid[i + 3] + MY_UI_INSTANCE.values_grid[i + 6]) == 2{
+                play_index = ai_rows_index[i];
+                break;
+            }
+        }
+        if play_index < 9 {
+            return play_index;
+        }
         let mut dispo_moves:Vec<usize> = Vec::new();
         for  (i,value) in MY_UI_INSTANCE.values_grid.iter().enumerate(){
             if *value == 0u8{
@@ -418,7 +533,12 @@ unsafe {
     };
     let next_move = match DIFFICULTY {
         Difficulty::Easy => next_random_move(),
-        Difficulty::Medium => next_clever_move(),
+        Difficulty::Medium => {
+            let mut rng = rand::thread_rng();
+            let n:usize =  rng.gen_range(0..2);
+            let next_move = [next_clever_move_with_default(),next_clever_move()];
+            next_move[n]
+            }
         Difficulty::Hard => next_best_move(),
     };
     if next_move < 9 {
@@ -492,7 +612,6 @@ fn playing_image_click(clicked_button:&Button){
 }
 
 fn change_difficulty(switch : &ComboBoxText){
-    println!("active changed ! {} choosed !",switch.active_text().unwrap());
     let choosed_difficulty = switch.active_text().unwrap().to_string();
     unsafe {
         DIFFICULTY = match choosed_difficulty.as_str() {
